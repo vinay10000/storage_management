@@ -110,7 +110,11 @@ export const getCurrentUser = async () => {
 
     return parseStringify(user.documents[0]);
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error && error.message === 'No session found') {
+      return null; // Return null for no session instead of throwing
+    }
+    console.error('Error in getCurrentUser:', error);
+    return null; // Return null for any other errors
   }
 };
 
