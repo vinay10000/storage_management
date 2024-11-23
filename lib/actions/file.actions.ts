@@ -62,19 +62,26 @@ const createQueries = (currentUser: Models.Document, types: string[], searchText
     return queries
 }
 export const getFiles = async ({ types = [], searchText = "", sort = "$createdAt-desc", limit }: GetFilesProps) => {
-    const { databases } = await createAdminClient()
     try {
-        const currentUser = await getCurrentUser()
+        const { databases } = await createAdminClient();
+        const currentUser = await getCurrentUser();
+        
         if (!currentUser) {
             return null;
         }
-        const queries = createQueries(currentUser, types, searchText, sort, limit)
-        const files = await databases.listDocuments(appwriteConfig.databaseId, appwriteConfig.filesCollectionId, queries)
-        return parseStringify(files)
-    } catch (e) {
-        handleError(e, "Failed to get files")
+        
+        const queries = createQueries(currentUser, types, searchText, sort, limit);
+        const files = await databases.listDocuments(
+            appwriteConfig.databaseId, 
+            appwriteConfig.filesCollectionId, 
+            queries
+        );
+        
+        return parseStringify(files);
+    } catch (error) {
+        console.error('Error in getFiles:', error);
+        return null;
     }
-
 }
 
 export const renameFile = async ({ fileId, name, extension, path }: RenameFileProps) => {

@@ -6,16 +6,22 @@ import { Models } from 'node-appwrite';
 import React from 'react';
 import { redirect } from 'next/navigation';
 
-const page = async ({searchParams,params}:SearchParamProps) => {
-    const type = (await params)?.type as string|| "";
-    const types = getFileTypesParams(type) as FileType[]
-    const searchText = ((await searchParams)?.query as string) || "";
-    const sort = ((await searchParams)?.sort as string) || "";
+interface SearchParamProps {
+    params: { type: string };
+    searchParams: { query?: string; sort?: string };
+}
+
+const page = async ({ params, searchParams }: SearchParamProps) => {
+    const type = params.type || "";
+    const types = getFileTypesParams(type) as FileType[];
+    const searchText = searchParams.query || "";
+    const sort = searchParams.sort || "$createdAt-desc";
     
     try {
-        const files = await getFiles({types,searchText,sort})
+        const files = await getFiles({ types, searchText, sort });
+        
         if (!files) {
-            redirect('/sign-in'); // Redirect to sign-in if no files (unauthenticated)
+            return redirect('/sign-in');
         }
         
         return (
@@ -34,7 +40,6 @@ const page = async ({searchParams,params}:SearchParamProps) => {
                         </div>
                     </div>
                 </section>
-                {/* render files dynamically */}
                 {files.total > 0 ? (
                     <section className='file-list'>
                         {files.documents.map((file: Models.Document) => (
@@ -50,8 +55,8 @@ const page = async ({searchParams,params}:SearchParamProps) => {
         )
     } catch (error) {
         console.error('Error in file page:', error);
-        redirect('/sign-in');
+        return redirect('/sign-in');
     }
 }
 
-export default page
+export default page;
