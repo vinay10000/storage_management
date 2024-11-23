@@ -14,6 +14,9 @@ const page = async ({searchParams,params}:SearchParamProps) => {
     
     try {
         const files = await getFiles({types,searchText,sort})
+        if (!files) {
+            redirect('/sign-in'); // Redirect to sign-in if no files (unauthenticated)
+        }
         
         return (
             <div className='page-container'>
@@ -23,7 +26,7 @@ const page = async ({searchParams,params}:SearchParamProps) => {
                     </h1>
                     <div className='total-size-section'>
                         <p className='body-1'>
-                          Total: <span className='capitalize'>{files?.total || 0} files</span>
+                          Total: <span className='capitalize'>{files.total || 0} files</span>
                         </p>
                         <div className='sort-container'>
                             <p className='body-1 hidden text-light-200 sm:block'>Sort by:</p>
@@ -32,7 +35,7 @@ const page = async ({searchParams,params}:SearchParamProps) => {
                     </div>
                 </section>
                 {/* render files dynamically */}
-                {files?.total > 0 ? (
+                {files.total > 0 ? (
                     <section className='file-list'>
                         {files.documents.map((file: Models.Document) => (
                             <Card key={file.$id} file={file}/>
@@ -46,14 +49,8 @@ const page = async ({searchParams,params}:SearchParamProps) => {
             </div>
         )
     } catch (error) {
-        if ((error as Error).message === 'No session found') {
-            redirect('/sign-in');
-        }
-        return (
-            <div className="flex-center flex-col text-center">
-                <p className="text-light-400 mt-10">Error loading files. Please try again later.</p>
-            </div>
-        )
+        console.error('Error in file page:', error);
+        redirect('/sign-in');
     }
 }
 
