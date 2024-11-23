@@ -11,7 +11,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: " App",
   description: "StoreIt - storage for your files",
-
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
